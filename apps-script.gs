@@ -1,6 +1,7 @@
 // رؤية للإنتاج الفني — استقبال ردود صفحات العروض في Google Sheets
 // عام لكل زبون: أسماء الأعمدة تجي من الصفحة نفسها (_labels)، والمفتاح محفوظ كملاحظة على خلية العنوان
 const NOTIFY_EMAIL = "v.production.iq@gmail.com"; // "" يوقف إيميل التنبيه
+const SHEET_ID = "1d2TrJ_2wU1Pz2l-goDZcAEg5q1KCH0-_HCocUMA56xM"; // مشروع مستقل؛ "" إذا السكربت مربوط بالشيت نفسه
 const ACCENT = "#F37420";
 
 function doGet() {
@@ -17,7 +18,8 @@ function doPost(e) {
     labels.submitted_at = labels.submitted_at || "وقت الإرسال";
     const incoming = ["submitted_at"].concat(Object.keys(labels), Object.keys(p))
       .filter((k, i, a) => k.charAt(0) !== "_" && a.indexOf(k) === i);
-    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+    const ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
+    const sh = ss.getSheets()[0];
     const hasHead = sh.getLastRow() > 0;
     const head = hasHead ? sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0] : [];
     const keys = hasHead ? sh.getRange(1, 1, 1, sh.getLastColumn()).getNotes()[0] : [];
