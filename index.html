@@ -461,12 +461,6 @@ const DATA = {
 
 // ===== النموذج — النوع: text | tel | area (الافتراضي) | one | multi | rate =====
 const PARTS = [
-  { rail: "معلومات التواصل", part: "قبل ما نبدأ", title: "منو يجاوب على الاستبيان؟", desc: "حتى نعرف ويا منو نتابع التفاصيل.",
-    groups: [{ title: "بيانات أساسية", qs: [
-      { id: "contact_name", t: "الاسم", type: "text", req: true },
-      { id: "contact_role", t: "الصفة", type: "text", hint: "مثلاً: الطبيب، مدير العيادة، مسؤول التسويق" },
-      { id: "contact_phone", t: "رقم الهاتف أو الواتساب", label: "الهاتف", type: "tel", req: true, hint: "مثلاً: 07801234567" }
-    ]}]},
   { rail: "قسم التقويم", part: "الجزء الأول", title: "قسم تقويم الأسنان", desc: "التقنيات، أنواع التقويم، ورحلة المريض — أساس كل إعلان راح نكتبه.",
     groups: [
       { title: "الأجهزة والتقنيات", qs: [
@@ -518,15 +512,22 @@ const PARTS = [
       ]}
     ]},
   { rail: "الخطة والإنتاج", part: "الجزء الثالث", title: "الخطة التشغيلية والإنتاج المرئي", desc: "آخر خطوة: منو يطلع بالكاميرا، وشنو أولويتكم بالشهر الأول.",
-    groups: [{ title: "الكادر والأولويات", qs: [
-      { id: "p_staff", t: "كم عدد الكادر، ومنو مستعد يطلع بالفيديوهات والتصوير؟", label: "الخطة: الكادر" },
-      { id: "p_videos", t: "شنو نوع الفيديوهات الي تكدرون توفرون تصويرها؟", label: "الخطة: الفيديوهات المتاحة", type: "multi",
-        opts: ["مراحل تركيب التقويم", "يوم فك التقويم وردة الفعل", "الطبيب يشرح للكاميرا", "جولة بالعيادة", "رأي مريض"] },
-      { id: "p_redlines", t: "شنو الخطوط الحمراء أو الممنوعات الي ما لازم نذكرها بالمحتوى؟", label: "الخطة: الخطوط الحمراء" },
-      { id: "p_priority", t: "شنو الخدمات الي تريدون نركز عليها بقوة بالشهر الأول من الحملة؟", label: "الخطة: أولويات الشهر الأول",
-        hint: "مثلاً: التقويم الشفاف، أو بناء الوعي بتقويم الأطفال" },
-      { id: "p_notes", t: "ملاحظات إضافية", label: "ملاحظات إضافية" }
-    ]}]}
+    groups: [
+      { title: "الكادر والأولويات", qs: [
+        { id: "p_staff", t: "كم عدد الكادر، ومنو مستعد يطلع بالفيديوهات والتصوير؟", label: "الخطة: الكادر" },
+        { id: "p_videos", t: "شنو نوع الفيديوهات الي تكدرون توفرون تصويرها؟", label: "الخطة: الفيديوهات المتاحة", type: "multi",
+          opts: ["مراحل تركيب التقويم", "يوم فك التقويم وردة الفعل", "الطبيب يشرح للكاميرا", "جولة بالعيادة", "رأي مريض"] },
+        { id: "p_redlines", t: "شنو الخطوط الحمراء أو الممنوعات الي ما لازم نذكرها بالمحتوى؟", label: "الخطة: الخطوط الحمراء" },
+        { id: "p_priority", t: "شنو الخدمات الي تريدون نركز عليها بقوة بالشهر الأول من الحملة؟", label: "الخطة: أولويات الشهر الأول",
+          hint: "مثلاً: التقويم الشفاف، أو بناء الوعي بتقويم الأطفال" },
+        { id: "p_notes", t: "ملاحظات إضافية", label: "ملاحظات إضافية" }
+      ]},
+      { title: "بيانات التواصل (اختياري)", qs: [
+        { id: "contact_name", t: "الاسم", type: "text", info: true, hint: "إذا تتركها فارغة، نتابع وياك بنفس الطريقة الي وصلك بيها الرابط." },
+        { id: "contact_role", t: "الصفة", type: "text", info: true, hint: "مثلاً: الطبيب، مدير العيادة، مسؤول التسويق" },
+        { id: "contact_phone", t: "رقم الهاتف أو الواتساب", label: "الهاتف", type: "tel", info: true, hint: "مثلاً: 07801234567" }
+      ]}
+    ]}
 ];
 
 // ===== المحرّك — لا يحتاج تعديل =====
@@ -596,7 +597,7 @@ if (form) {
   const layout = form.closest(".layout"), rail = document.getElementById("railList"), panels = document.getElementById("panels");
   const allQs = PARTS.flatMap(p => p.groups.flatMap(g => g.qs));
   const partOf = {}; PARTS.forEach((p, i) => p.groups.forEach(g => g.qs.forEach(q => { partOf[q.id] = i; })));
-  const counted = allQs.filter(q => partOf[q.id] > 0);
+  const counted = allQs.filter(q => !q.info);
   const isOpt = q => q.type === "one" || q.type === "multi" || q.type === "rate";
   if (PARTS.length < 3) layout.classList.add("solo");
 
@@ -668,7 +669,8 @@ if (form) {
     document.getElementById("progBar").style.width = (counted.length ? n / counted.length * 100 : 0) + "%";
     PARTS.forEach((p, i) => {
       const qs = p.groups.flatMap(g => g.qs);
-      rail.querySelectorAll("button")[i].classList.toggle("done", i === 0 ? !checkPart(0, false) : qs.every(answered));
+      const core = qs.filter(q => !q.info);
+      rail.querySelectorAll("button")[i].classList.toggle("done", core.length ? core.every(answered) : !checkPart(i, false));
     });
   }
   function show(i, scroll) {
