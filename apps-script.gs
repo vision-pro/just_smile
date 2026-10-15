@@ -33,7 +33,8 @@ function doPost(e) {
       sh.setFrozenRows(1);
       sh.setRightToLeft(true);
     }
-    sh.appendRow(keys.map(k => p[k] || ""));
+    // أرقام الهواتف تبقى نص (ما يضيع الصفر)، وأي قيمة تبدأ بـ = + - @ ما تنحسب معادلة
+    sh.appendRow(keys.map(k => { const v = String(p[k] || ""); return /^[=+\-@]|^\d[\d\s]*$/.test(v) ? "'" + v : v; }));
     if (NOTIFY_EMAIL) {
       MailApp.sendEmail(NOTIFY_EMAIL, p._title || "رد جديد",
         keys.filter(String).map(k => (labels[k] || k) + ":\n" + (p[k] || "—")).join("\n\n"));
